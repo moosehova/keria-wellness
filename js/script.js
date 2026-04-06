@@ -50,13 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadProducts() {
-        if (!supabaseClient) {
+        if (!_supabase) {
             renderProductCards(fallbackProducts.map(normalizeProduct));
             return;
         }
 
         try {
-            const { data, error } = await supabaseClient
+            const { data, error } = await _supabase
                 .from('products')
                 .select('*')
                 .order('id', { ascending: false });

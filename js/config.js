@@ -8,6 +8,7 @@ const CONFIG = {
 };
 
 const hasSupabaseConfig = Boolean(CONFIG.supabaseUrl && CONFIG.supabaseKey);
-const supabaseClient = (typeof window !== 'undefined' && window.supabase && hasSupabaseConfig)
-    ? window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey)
+const { createClient } = typeof supabase !== 'undefined' ? supabase : { createClient: null };
+const _supabase = (typeof createClient === 'function' && hasSupabaseConfig)
+    ? createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey)
     : null;
