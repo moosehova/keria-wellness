@@ -102,7 +102,7 @@ function renderInventory() {
         <tr class="border-b border-emerald-900/10">
             <td class="p-4">
                 <div class="flex items-center gap-3">
-                    <img src="${product.image}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://via.placeholder.com/120'">
+                    <img src="${product.image}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='images/default-product.jpg'">
                     <div>
                         <p class="text-xs font-bold text-emerald-900">${product.name}</p>
                         <p class="text-[11px] text-slate-500">${product.benefits || ''}</p>
