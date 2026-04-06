@@ -5,6 +5,22 @@ if (!Array.isArray(window.categories) || !window.categories.length) {
     window.categories = categorySeed.length ? categorySeed : ['Nuts', 'Seeds', 'Specialty'];
 }
 
+function setAdminStatus(message, tone = 'warning') {
+    const status = document.getElementById('admin-status');
+    if (!status) {
+        return;
+    }
+
+    const tones = {
+        warning: 'border-amber-200 bg-amber-50 text-amber-900',
+        error: 'border-rose-200 bg-rose-50 text-rose-900',
+        success: 'border-emerald-200 bg-emerald-50 text-emerald-900'
+    };
+
+    status.className = `rounded-2xl px-4 py-3 text-sm ${tones[tone] || tones.warning}`;
+    status.textContent = message;
+}
+
 function getBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -79,6 +95,8 @@ function renderInventory() {
         `;
         return;
     }
+
+    setAdminStatus(`Connected. Showing ${inventory.length} live product${inventory.length === 1 ? '' : 's'}.`, 'success');
 
     list.innerHTML = inventory.map((product, index) => `
         <tr class="border-b border-emerald-900/10">
@@ -275,6 +293,7 @@ async function exportData() {
 
 async function refreshAdminTable() {
     if (!_supabase) {
+        setAdminStatus('Supabase is not connected. Add your Project URL and Anon Public Key in js/config.js.', 'warning');
         renderInventory();
         hydrateCategoriesFromInventory();
         return;
@@ -287,6 +306,7 @@ async function refreshAdminTable() {
 
     if (error) {
         console.error('Admin Fetch Error:', error.message);
+        setAdminStatus(`Supabase fetch failed: ${error.message}`, 'error');
         renderInventory();
         hydrateCategoriesFromInventory();
         return;
@@ -301,6 +321,10 @@ async function refreshAdminTable() {
         image: item.image_url,
         is_in_stock: item.is_in_stock !== false
     }));
+
+    if (!inventory.length) {
+        setAdminStatus('Supabase connected, but the products table returned 0 rows.', 'warning');
+    }
 
     renderInventory();
     hydrateCategoriesFromInventory();
