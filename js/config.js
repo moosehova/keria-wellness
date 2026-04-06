@@ -1,6 +1,7 @@
 const CONFIG = {
     supabaseUrl: "https://zarblykuwtjhjvzdosqc.supabase.co",
     supabaseKey: "sb_publishable_KwgEUe84jLMaYZm7CXwAVQ_1lLktnI_",
+    storageBucket: "product-images",
     whatsapp: "260976410975",
     brand: "Keria Wellness",
     currency: "ZMW",

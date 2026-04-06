@@ -71,6 +71,36 @@ function getBase64(file) {
     });
 }
 
+async function uploadImageToStorage(file) {
+    if (!_supabase || !_supabase.storage) {
+        throw new Error('Supabase storage is not available.');
+    }
+
+    const bucket = (typeof CONFIG !== 'undefined' && CONFIG.storageBucket) ? CONFIG.storageBucket : 'product-images';
+    const extension = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${extension}`;
+
+    const { error: uploadError } = await _supabase
+        .storage
+        .from(bucket)
+        .upload(fileName, file, { upsert: false });
+
+    if (uploadError) {
+        throw uploadError;
+    }
+
+    const { data } = _supabase
+        .storage
+        .from(bucket)
+        .getPublicUrl(fileName);
+
+    if (!data?.publicUrl) {
+        throw new Error('Could not generate a public URL for the uploaded image.');
+    }
+
+    return data.publicUrl;
+}
+
 function syncCategories(selectedCategory) {
     const tagContainer = document.getElementById('category-tags');
     const dropdown = document.getElementById('p-category');
@@ -199,12 +229,21 @@ async function saveProduct() {
     const fileInput = document.getElementById('product-image-file');
     const urlInput = document.getElementById('p-image').value.trim();
     const existingImage = index >= 0 && inventory[index] ? inventory[index].image : '';
+    const newImageFile = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
 
     let imageData = urlInput || existingImage;
 
-    if (fileInput.files && fileInput.files[0]) {
+    if (_supabase && newImageFile) {
         try {
-            imageData = await getBase64(fileInput.files[0]);
+            imageData = await uploadImageToStorage(newImageFile);
+        } catch (error) {
+            console.error('Storage upload failed:', error.message || error);
+            alert(`Image upload failed: ${error.message || 'Unknown error'}`);
+            return;
+        }
+    } else if (newImageFile) {
+        try {
+            imageData = await getBase64(newImageFile);
         } catch (error) {
             alert(`Error reading image file: ${error.message}`);
             return;
