@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeCategory = 'All';
     let searchTerm = '';
     let cart = [];
+    const CART_STORAGE_KEY = 'keria_cart';
 
     function normalizeProduct(product) {
         return {
@@ -147,6 +148,39 @@ document.addEventListener('DOMContentLoaded', () => {
         return `K${value.toFixed(0)}`;
     }
 
+    function saveCart() {
+        try {
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+        } catch (error) {
+            console.error('Cart save failed:', error);
+        }
+        updateCartUI();
+    }
+
+    function loadCart() {
+        try {
+            const saved = localStorage.getItem(CART_STORAGE_KEY);
+            if (!saved) {
+                return;
+            }
+
+            const parsed = JSON.parse(saved);
+            if (!Array.isArray(parsed)) {
+                return;
+            }
+
+            cart = parsed
+                .filter((item) => item && item.id && item.name)
+                .map((item) => ({
+                    ...item,
+                    quantity: Math.max(1, Number(item.quantity) || 1)
+                }));
+        } catch (error) {
+            console.error('Cart load failed:', error);
+            cart = [];
+        }
+    }
+
     function renderCartItems() {
         if (!hasCartUI) {
             return;
@@ -157,14 +191,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const total = cart.reduce((sum, item) => sum + getNumericPrice(item.price), 0);
-        const rows = cart.map((item, index) => `
+        const total = cart.reduce((sum, item) => sum + (getNumericPrice(item.price) * item.quantity), 0);
+        const rows = cart.map((item) => `
             <div class="cart-item">
                 <div>
                     <p class="cart-item__title">${item.name}</p>
-                    <p class="cart-item__meta">${item.price}</p>
+                    <p class="cart-item__meta">${item.price} x ${item.quantity}</p>
                 </div>
-                <button type="button" class="cart-item__remove" data-cart-remove="${index}">Remove</button>
+                <button type="button" class="cart-item__remove" data-cart-remove="${item.id}">Remove</button>
             </div>
         `).join('');
 
@@ -176,8 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        cartCount.textContent = String(cart.length);
-        if (cart.length > 0) {
+        const totalUnits = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount.textContent = String(totalUnits);
+        if (totalUnits > 0) {
             cartFab.classList.remove('hidden');
             cartFab.setAttribute('aria-hidden', 'false');
         } else {
@@ -199,8 +234,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        cart.push(product);
-        updateCartUI();
+        const existingItem = cart.find((item) => String(item.id) === String(product.id));
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({ ...product, quantity: 1 });
+        }
+
+        saveCart();
     }
 
     function toggleCartModal(forceOpen = null) {
@@ -230,20 +271,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const messagePrefix = typeof CONFIG !== 'undefined' && CONFIG.whatsappMessage
-            ? CONFIG.whatsappMessage
-            : 'Hello Keria Wellness, I would like to order ';
         const whatsappNumber = typeof CONFIG !== 'undefined' && CONFIG.whatsapp
             ? CONFIG.whatsapp
             : '260976410975';
 
-        let message = `${messagePrefix}\n\n`;
-        cart.forEach((item, index) => {
-            message += `${index + 1}. ${item.name} (${item.price})\n`;
+        let message = '*Keria Wellness Order Request*\n';
+        message += '--------------------------\n';
+
+        let total = 0;
+        cart.forEach((item) => {
+            const itemTotal = getNumericPrice(item.price) * item.quantity;
+            message += `• ${item.name} (x${item.quantity}) - ${item.price}\n`;
+            total += itemTotal;
         });
 
-        const total = cart.reduce((sum, item) => sum + getNumericPrice(item.price), 0);
-        message += `\nEstimated Total: ${formatCurrency(total)}`;
+        message += '--------------------------\n';
+        message += `*Total Estimate:* K${total.toFixed(2)}\n\n`;
+        message += 'Please confirm availability and delivery details.';
 
         window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
     }
@@ -330,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cartClear?.addEventListener('click', () => {
         cart = [];
-        updateCartUI();
+        saveCart();
     });
 
     if (modal) {
@@ -383,13 +427,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const removeIndex = Number(removeBtn.dataset.cartRemove);
-        if (!Number.isNaN(removeIndex)) {
-            cart.splice(removeIndex, 1);
-            updateCartUI();
+        const removeId = removeBtn.dataset.cartRemove;
+        const existing = cart.find((item) => String(item.id) === String(removeId));
+        if (existing) {
+            cart = cart.filter((item) => String(item.id) !== String(removeId));
+            saveCart();
         }
     });
 
+    loadCart();
     updateCartUI();
 
     loadProducts();
