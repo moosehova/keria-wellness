@@ -5,6 +5,8 @@ if (!Array.isArray(window.categories) || !window.categories.length) {
     window.categories = categorySeed.length ? categorySeed : ['Nuts', 'Seeds', 'Specialty'];
 }
 
+let successPopupTimer = null;
+
 function setAuthError(message = '') {
     const errorTag = document.getElementById('login-error');
     if (!errorTag) {
@@ -60,6 +62,44 @@ function setAdminStatus(message, tone = 'warning') {
 
     status.className = `rounded-2xl px-4 py-3 text-sm ${tones[tone] || tones.warning}`;
     status.textContent = message;
+}
+
+function showSuccessPopup(message = 'Product is now live on Keria Wellness.') {
+    const popup = document.getElementById('success-popup');
+    const messageTag = document.getElementById('success-popup-message');
+    if (!popup) {
+        return;
+    }
+
+    if (messageTag) {
+        messageTag.textContent = message;
+    }
+
+    popup.classList.remove('hidden');
+    popup.classList.add('flex');
+
+    if (successPopupTimer) {
+        clearTimeout(successPopupTimer);
+    }
+
+    successPopupTimer = setTimeout(() => {
+        closeSuccessPopup();
+    }, 3000);
+}
+
+function closeSuccessPopup() {
+    const popup = document.getElementById('success-popup');
+    if (!popup) {
+        return;
+    }
+
+    popup.classList.add('hidden');
+    popup.classList.remove('flex');
+
+    if (successPopupTimer) {
+        clearTimeout(successPopupTimer);
+        successPopupTimer = null;
+    }
 }
 
 function getBase64(file) {
@@ -302,12 +342,11 @@ async function saveProduct() {
     }
 
     resetForm();
-    setAdminStatus(
-        _supabase
-            ? 'Success! Product is now live on Keria Wellness.'
-            : 'Inventory updated locally. Generate product data to export.',
-        'success'
-    );
+    const successMessage = _supabase
+        ? 'Product is now live on Keria Wellness.'
+        : 'Inventory updated locally. Generate product data to export.';
+    setAdminStatus(successMessage, 'success');
+    showSuccessPopup(successMessage);
 }
 
 async function deleteProduct(id) {
@@ -475,6 +514,7 @@ window.exportData = exportData;
 window.refreshAdminTable = refreshAdminTable;
 window.handleLogin = handleLogin;
 window.handleLogout = handleLogout;
+window.closeSuccessPopup = closeSuccessPopup;
 
 window.addEventListener('DOMContentLoaded', async () => {
     syncCategories();
