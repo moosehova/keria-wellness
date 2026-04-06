@@ -45,6 +45,11 @@
                 </div>
 
                 <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Benefits</label>
+                    <input type="text" id="p-benefits" placeholder="e.g., Heart Health" class="w-full border-b py-2 outline-none focus:border-emerald-700 bg-transparent">
+                </div>
+
+                <div class="space-y-1">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Product Photo</label>
                     <input type="file" id="product-image-file" accept="image/*" 
                            class="w-full bg-emerald-950/20 border border-emerald-900/30 p-3 rounded-xl text-xs text-emerald-900 cursor-pointer">
@@ -83,10 +88,13 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
     <script src="js/products.js"></script>
 
     <script>
-        const inventory = Array.isArray(products) ? [...products] : [];
+        let inventory = Array.isArray(products) ? [...products] : [];
+        let editingId = null;
         const categorySeed = [...new Set(inventory.map(item => item.category).filter(Boolean))];
         if (!Array.isArray(window.categories) || !window.categories.length) {
             window.categories = categorySeed.length ? categorySeed : ['Nuts', 'Seeds', 'Specialty'];
@@ -123,6 +131,13 @@
             }
         }
 
+        function hydrateCategoriesFromInventory() {
+            const inventoryCategories = [...new Set(inventory.map(item => item.category).filter(Boolean))];
+            const merged = [...new Set([...(window.categories || []), ...inventoryCategories])];
+            window.categories = merged.length ? merged : ['Nuts', 'Seeds', 'Specialty'];
+            syncCategories();
+        }
+
         function addCategory() {
             const input = document.getElementById('new-cat-name');
             const value = input.value.trim();
@@ -155,6 +170,7 @@
                         <div>
                             <h4 class="font-bold text-sm text-emerald-950">${p.name}</h4>
                             <p class="text-[10px] text-slate-400 uppercase tracking-tighter">${p.category} • ${p.price}</p>
+                            <p class="text-[10px] text-slate-500">${p.benefits || ''}</p>
                         </div>
                     </div>
                     <div class="flex gap-2">
@@ -177,13 +193,15 @@
 
             document.getElementById('form-title').innerText = 'Edit Product';
             document.getElementById('edit-index').value = index;
+            editingId = p.id || null;
             document.getElementById('p-name').value = p.name || '';
             document.getElementById('p-price').value = p.price || '';
             if (p.category && !window.categories.includes(p.category)) {
                 window.categories.push(p.category);
                 syncCategories(p.category);
             }
-            document.getElementById('p-category').value = p.category || 'Apothecary';
+            document.getElementById('p-category').value = p.category || 'Nuts';
+            document.getElementById('p-benefits').value = p.benefits || '';
             // Store current image in the URL field for editing
             document.getElementById('p-image').value = p.image || '';
             // File input cannot be prepopulated for security, reset it
@@ -196,8 +214,9 @@
             const index = parseInt(document.getElementById('edit-index').value, 10);
             const fileInput = document.getElementById('product-image-file');
             const urlInput = document.getElementById('p-image').value.trim();
+            const existingImage = index >= 0 && inventory[index] ? inventory[index].image : '';
             
-            let imageData = urlInput;
+            let imageData = urlInput || existingImage;
             
             // If a file was uploaded, convert to Base64
             if (fileInput.files && fileInput.files[0]) {
@@ -213,6 +232,7 @@
                 name: document.getElementById('p-name').value.trim(),
                 price: document.getElementById('p-price').value.trim(),
                 category: document.getElementById('p-category').value,
+                benefits: document.getElementById('p-benefits').value.trim(),
                 image: imageData
             };
 
@@ -221,23 +241,69 @@
                 return;
             }
 
-            if (index === -1) {
-                inventory.push(newProduct);
+            if (supabaseClient) {
+                const payload = {
+                    name: newProduct.name,
+                    price: newProduct.price,
+                    category: newProduct.category,
+                    benefits: newProduct.benefits,
+                    image_url: newProduct.image
+                };
+
+                let error;
+                if (editingId) {
+                    ({ error } = await supabaseClient.from('products').update(payload).eq('id', editingId));
+                } else {
+                    ({ error } = await supabaseClient.from('products').insert([payload]));
+                }
+
+                if (error) {
+                    alert(`Supabase error: ${error.message}`);
+                    return;
+                }
+
+                await loadInventory();
             } else {
-                inventory[index] = { ...inventory[index], ...newProduct };
+                if (index === -1) {
+                    inventory.push(newProduct);
+                } else {
+                    inventory[index] = { ...inventory[index], ...newProduct };
+                }
+
+                renderInventory();
             }
 
-            renderInventory();
+            if (newProduct.category && !window.categories.includes(newProduct.category)) {
+                window.categories.push(newProduct.category);
+            }
             resetForm();
-            alert('Inventory Updated Locally! Click "Generate Updated products.js" to export.');
+            alert(supabaseClient
+                ? 'Product saved to live database.'
+                : 'Inventory updated locally. Click "Generate Product Data" to export.');
         }
 
-        function deleteProduct(index) {
+        async function deleteProduct(index) {
             if (index < 0 || index >= inventory.length) {
                 return;
             }
-            inventory.splice(index, 1);
-            renderInventory();
+
+            const item = inventory[index];
+            if (!confirm(`Delete ${item.name}?`)) {
+                return;
+            }
+
+            if (supabaseClient && item.id) {
+                const { error } = await supabaseClient.from('products').delete().eq('id', item.id);
+                if (error) {
+                    alert(`Supabase error: ${error.message}`);
+                    return;
+                }
+                await loadInventory();
+            } else {
+                inventory.splice(index, 1);
+                renderInventory();
+            }
+
             resetForm();
         }
 
@@ -245,13 +311,23 @@
             document.getElementById('admin-form').reset();
             document.getElementById('edit-index').value = '-1';
             document.getElementById('form-title').innerText = 'Add New Product';
+            editingId = null;
             document.getElementById('product-image-file').value = '';
             document.getElementById('p-image').value = '';
+            document.getElementById('p-benefits').value = '';
             syncCategories();
         }
 
         function buildProductsCode() {
-            return `const products = ${JSON.stringify(inventory, null, 4)};`;
+            const portable = inventory.map(item => ({
+                id: item.id,
+                name: item.name,
+                category: item.category,
+                price: item.price,
+                benefits: item.benefits || '',
+                image: item.image
+            }));
+            return `const products = ${JSON.stringify(portable, null, 4)};`;
         }
 
         function exportCode() {
@@ -273,8 +349,40 @@
             }
         }
 
+        async function loadInventory() {
+            if (!supabaseClient) {
+                renderInventory();
+                hydrateCategoriesFromInventory();
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('products')
+                .select('*')
+                .order('id', { ascending: false });
+
+            if (error) {
+                alert(`Supabase load error: ${error.message}`);
+                renderInventory();
+                hydrateCategoriesFromInventory();
+                return;
+            }
+
+            inventory = (data || []).map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                category: item.category,
+                benefits: item.benefits,
+                image: item.image_url
+            }));
+
+            renderInventory();
+            hydrateCategoriesFromInventory();
+        }
+
         syncCategories();
-        renderInventory();
+        loadInventory();
     </script>
 </body>
 </html>
