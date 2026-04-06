@@ -302,7 +302,12 @@ async function saveProduct() {
     }
 
     resetForm();
-    alert(_supabase ? 'Success! Product is now live on Keria Wellness.' : 'Inventory updated locally. Generate product data to export.');
+    setAdminStatus(
+        _supabase
+            ? 'Success! Product is now live on Keria Wellness.'
+            : 'Inventory updated locally. Generate product data to export.',
+        'success'
+    );
 }
 
 async function deleteProduct(id) {
