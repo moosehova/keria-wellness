@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let searchTerm = '';
     let cart = [];
     const CART_STORAGE_KEY = 'keria_cart';
+    let productsChannel = null;
 
     function normalizeProduct(product) {
         return {
@@ -359,6 +360,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function subscribeToProductChanges() {
+        if (!_supabase || typeof _supabase.channel !== 'function' || productsChannel) {
+            return;
+        }
+
+        productsChannel = _supabase
+            .channel('public:products-live')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'products' },
+                () => {
+                    loadProducts();
+                }
+            )
+            .subscribe();
+    }
+
     searchInput?.addEventListener('input', (event) => {
         searchTerm = event.target.value || '';
         applyFilter(activeCategory);
@@ -438,5 +456,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCart();
     updateCartUI();
 
+    subscribeToProductChanges();
     loadProducts();
 });
