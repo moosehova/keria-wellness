@@ -2,6 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const grid = document.querySelector('#product-grid');
     const filterBar = document.querySelector('#category-filters');
     const searchInput = document.querySelector('#productSearch');
+    const modal = document.querySelector('#productModal');
+    const modalContent = document.querySelector('#modalContent');
+    const productCount = document.querySelector('#productCount');
     if (!grid) {
         return;
     }
@@ -25,6 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderProductCards(items) {
         grid.innerHTML = '';
+        if (productCount) {
+            productCount.textContent = `${items.length} healthy product${items.length === 1 ? '' : 's'} available`;
+        }
 
         if (!items.length) {
             grid.innerHTML = '<div class="product-card" style="grid-column: 1 / -1; text-align: center;"><h3 style="color: var(--keria-emerald); font-family: \"Playfair Display\", serif;">No products found</h3><p style="color: #64748b; margin-bottom: 0;">Try another category.</p></div>';
@@ -44,9 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const buttonClass = outOfStock ? 'btn-primary btn-primary--disabled' : 'btn-primary';
             const buttonText = outOfStock ? 'Unavailable' : 'Order Now';
             const cardClass = outOfStock ? 'product-card product-card--soldout' : 'product-card';
+            const modalPointerClass = modal ? 'product-card--interactive' : '';
 
             const card = `
-                <div class="${cardClass}">
+                <div class="${cardClass} ${modalPointerClass}" ${modal ? `data-product-id="${product.id}"` : ''}>
                     <div class="product-image-wrap">
                         <img src="${product.image}" onerror="this.src='images/default-product.jpg'" alt="${product.name}" style="width: 100%; display: block;">
                         ${outOfStock ? '<div class="stock-overlay">OUT OF STOCK</div>' : ''}
@@ -66,6 +73,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
             grid.innerHTML += card;
         });
+    }
+
+    function openModal(productId) {
+        if (!modal || !modalContent) {
+            return;
+        }
+
+        const product = allProducts.find((item) => String(item.id) === String(productId));
+        if (!product) {
+            return;
+        }
+
+        const messagePrefix = typeof CONFIG !== 'undefined' && CONFIG.whatsappMessage
+            ? CONFIG.whatsappMessage
+            : 'Hello Keria Wellness, I would like to order ';
+        const whatsappNumber = typeof CONFIG !== 'undefined' && CONFIG.whatsapp
+            ? CONFIG.whatsapp
+            : '260976410975';
+        const outOfStock = product.isInStock === false;
+
+        modalContent.innerHTML = `
+            <img src="${product.image}" alt="${product.name}" class="modal-image" onerror="this.src='images/default-product.jpg'">
+            <span class="category-badge ${outOfStock ? 'category-badge--soldout' : ''}">${outOfStock ? 'Sold Out' : product.category}</span>
+            <h2 id="modal-title" class="modal-title">${product.name}</h2>
+            <p class="modal-copy">${product.benefits || 'Pure wellness support for your daily routine.'}</p>
+            <div class="modal-row">
+                <span class="modal-price">${product.price}</span>
+                ${outOfStock
+                    ? '<button type="button" class="btn-primary btn-primary--disabled">Unavailable</button>'
+                    : `<a href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messagePrefix + product.name)}" class="btn-primary" target="_blank" rel="noopener noreferrer">Order via WhatsApp</a>`
+                }
+            </div>
+        `;
+
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        if (!modal) {
+            return;
+        }
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
     }
 
     function getCategories(items) {
@@ -139,6 +192,28 @@ document.addEventListener('DOMContentLoaded', () => {
         searchTerm = event.target.value || '';
         applyFilter(activeCategory);
     });
+
+    if (modal) {
+        grid.addEventListener('click', (event) => {
+            const card = event.target.closest('[data-product-id]');
+            if (!card) {
+                return;
+            }
+            openModal(card.dataset.productId);
+        });
+
+        modal.addEventListener('click', (event) => {
+            if (event.target.closest('[data-modal-close]')) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    }
 
     loadProducts();
 });

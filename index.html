@@ -35,9 +35,22 @@
         <div class="search-wrap">
             <input type="text" id="productSearch" placeholder="Search for Sea Moss, Almonds, or Ginger..." class="search-input">
         </div>
+        <p id="productCount" class="product-count"></p>
     </div>
     <div id="category-filters" class="filter-bar"></div>
     <div id="product-grid" class="product-grid"></div>
+
+    <div id="productModal" class="product-modal" aria-hidden="true">
+        <div class="product-modal__backdrop" data-modal-close></div>
+        <div class="product-modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <button type="button" class="product-modal__close" data-modal-close aria-label="Close product details">&times;</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <a href="https://wa.me/260976410975?text=Hello%20Keria%20Wellness%2C%20I%20have%20a%20question%20about%20your%20products." class="floating-whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Chat with Keria Wellness on WhatsApp">WhatsApp</a>
+
+    <footer class="site-credit">Designed and powered by Purple Worth Studios</footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
