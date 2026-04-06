@@ -45,8 +45,11 @@
                 </div>
 
                 <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Image URL</label>
-                    <input type="text" id="p-image" class="w-full border-b py-2 outline-none focus:border-emerald-700 bg-transparent">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Product Photo</label>
+                    <input type="file" id="product-image-file" accept="image/*" 
+                           class="w-full bg-emerald-950/20 border border-emerald-900/30 p-3 rounded-xl text-xs text-emerald-900 cursor-pointer">
+                    <p class="text-[9px] text-emerald-700/50 italic">*Upload your product image (Max 2MB recommended)</p>
+                    <input type="text" id="p-image" placeholder="Or paste an image URL..." class="w-full border-b py-2 outline-none focus:border-emerald-700 bg-transparent mt-2 text-xs">
                 </div>
 
                 <div class="flex gap-4 pt-6">
@@ -85,6 +88,16 @@
         }
 
         const inventory = Array.isArray(products) ? [...products] : [];
+
+        // Base64 Image Conversion
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
 
         function syncCategories(selectedCategory) {
             const tagContainer = document.getElementById('category-tags');
@@ -168,23 +181,40 @@
                 syncCategories(p.category);
             }
             document.getElementById('p-category').value = p.category || 'Apothecary';
+            // Store current image in the URL field for editing
             document.getElementById('p-image').value = p.image || '';
+            // File input cannot be prepopulated for security, reset it
+            document.getElementById('product-image-file').value = '';
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function saveProduct() {
+        async function saveProduct() {
             const index = parseInt(document.getElementById('edit-index').value, 10);
+            const fileInput = document.getElementById('product-image-file');
+            const urlInput = document.getElementById('p-image').value.trim();
+            
+            let imageData = urlInput;
+            
+            // If a file was uploaded, convert to Base64
+            if (fileInput.files && fileInput.files[0]) {
+                try {
+                    imageData = await getBase64(fileInput.files[0]);
+                } catch (error) {
+                    alert('Error reading image file: ' + error.message);
+                    return;
+                }
+            }
 
             const newProduct = {
                 name: document.getElementById('p-name').value.trim(),
                 price: document.getElementById('p-price').value.trim(),
                 category: document.getElementById('p-category').value,
-                image: document.getElementById('p-image').value.trim()
+                image: imageData
             };
 
             if (!newProduct.name || !newProduct.price || !newProduct.image) {
-                alert('Please complete name, price, and image URL before saving.');
+                alert('Please complete name, price, and upload/paste an image before saving.');
                 return;
             }
 
@@ -196,7 +226,7 @@
 
             renderInventory();
             resetForm();
-            alert('Inventory Updated Locally!');
+            alert('Inventory Updated Locally! Click "Generate Updated products.js" to export.');
         }
 
         function deleteProduct(index) {
@@ -212,6 +242,8 @@
             document.getElementById('admin-form').reset();
             document.getElementById('edit-index').value = '-1';
             document.getElementById('form-title').innerText = 'Add New Product';
+            document.getElementById('product-image-file').value = '';
+            document.getElementById('p-image').value = '';
             syncCategories();
         }
 
