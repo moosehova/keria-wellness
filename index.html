@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keria Wellness | Organic Healing & Wisdom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        .wellness-gradient { background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }
+        .filter-btn {
+            padding: 0.75rem 2rem;
+            border-radius: 9999px;
+            border: 1px solid #d1fae5;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            color: #064e3b;
+        }
+        .filter-btn.active {
+            background: #064e3b;
+            border-color: #064e3b;
+            color: #ffffff;
+            box-shadow: 0 16px 30px -14px rgba(6, 78, 59, 0.45);
+        }
+        .filter-btn:not(.active):hover {
+            border-color: #064e3b;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="bg-[#fcfaf7] text-slate-900">
+
+    <nav class="flex justify-between items-center px-6 md:px-12 py-4 bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-emerald-50">
+        <div class="flex items-center">
+            <a href="#" class="group">
+                <img src="images/keria_logo.svg" alt="Keria Wellness" class="h-20 md:h-28 w-auto object-contain transition-transform duration-500 group-hover:scale-105">
+            </a>
+        </div>
+        
+        <div class="hidden md:flex gap-12 text-[10px] uppercase tracking-[0.4em] font-bold text-emerald-900/40">
+            <a href="#collection" class="hover:text-emerald-700 transition-colors">The Collection</a>
+            <a href="#wisdom" class="hover:text-emerald-700 transition-colors">Wisdom</a>
+            <a href="#order" class="hover:text-emerald-700 transition-colors">Order Status</a>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <button class="text-slate-400 hover:text-emerald-900 transition-all">
+                <i class="fa-solid fa-magnifying-glass text-sm"></i>
+            </button>
+
+            <button onclick="toggleCart()" class="relative group text-emerald-900 transition-transform active:scale-90">
+                <i class="fa-solid fa-bag-shopping text-xl"></i>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-emerald-600 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-lg shadow-emerald-600/40 border-2 border-white animate-pulse">
+                    0
+                </span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="relative py-24 md:py-32 px-6 wellness-gradient overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center space-y-8 relative z-10">
+            <span class="text-emerald-700 font-bold uppercase tracking-[0.5em] text-[10px]">Purely Zambian • Wildcrafted</span>
+            <h1 class="text-5xl md:text-8xl leading-[1.1] text-emerald-950">
+                Nature's <span class="italic text-emerald-700">Intelligence</span> for the Modern Soul.
+            </h1>
+            <p class="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+                Restore your vitality with our curated selection of organic sea moss, healing oils, and herbal wisdom.
+            </p>
+            <div class="pt-10">
+                <a href="#collection" class="inline-block bg-emerald-900 text-white px-12 py-5 rounded-full font-bold uppercase tracking-widest hover:shadow-2xl hover:shadow-emerald-900/20 transition-all transform hover:-translate-y-1">
+                    Enter the Apothecary
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section id="wisdom" class="py-24 bg-[#fcfaf7]">
+        <div class="max-w-5xl mx-auto px-6 text-center">
+            <div class="inline-block px-4 py-1 border border-emerald-200 rounded-full text-[9px] font-bold text-emerald-800 uppercase tracking-[0.3em] mb-12">
+                The Apothecary Wisdom
+            </div>
+
+            <h2 class="text-4xl md:text-6xl font-serif text-emerald-950 leading-tight mb-12">
+                Healing is a return to <br>
+                <span class="italic font-light text-emerald-700">Organic Truth.</span>
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-16 text-left border-t border-emerald-100 pt-16">
+                <p class="text-slate-600 leading-relaxed font-light first-letter:text-4xl first-letter:font-serif first-letter:text-emerald-900 first-letter:mr-2">
+                    Keria Wellness was founded on the belief that true vitality comes from nature's intelligence. We source wildcrafted sea moss, organic seeds, and ancient spices directly from the earth to ensure your body receives the purest nutrients available.
+                </p>
+                <p class="text-slate-600 leading-relaxed font-light">
+                    Based in Zambia, we are more than a shop; we are an apothecary of wisdom. Every product is selected for its ability to restore balance, boost immunity, and ignite the soul's natural healing potential.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="collection" class="max-w-7xl mx-auto px-6 py-32">
+        <div class="mb-20 text-center md:text-left">
+            <h2 class="text-4xl md:text-5xl text-emerald-950">The Healing Collection</h2>
+            <div class="h-1 w-20 bg-emerald-700 mt-4 mx-auto md:mx-0"></div>
+        </div>
+
+        <div id="filter-container" class="flex flex-wrap justify-center gap-3 mb-20 px-6"></div>
+
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16">
+        </div>
+    </section>
+
+    <div id="orderModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-emerald-950/60 backdrop-blur-md">
+        <div class="bg-white w-full max-w-lg rounded-[3rem] p-10 md:p-16 relative shadow-2xl animate-in fade-in zoom-in duration-300">
+            <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-300 hover:text-emerald-900 transition-colors">
+                <i class="fa-solid fa-circle-xmark text-3xl"></i>
+            </button>
+
+            <div class="mb-10">
+                <span class="text-emerald-700 font-bold text-[10px] uppercase tracking-[0.4em]">Order Request</span>
+                <h2 id="modalProductTitle" class="text-4xl text-emerald-950 italic mt-2">Checkout</h2>
+                <p id="checkout-summary" class="text-slate-500 text-sm mt-3 leading-relaxed"></p>
+            </div>
+
+            <form action="https://docs.google.com/forms/d/e/1FAIpQLScUVmvDZuX-CGLpNIw56GSZ2uofzT9gf878MrdOmBsq9Rttxw/formResponse"
+                  method="POST"
+                  target="hidden_iframe"
+                  onsubmit="handleSuccess()"
+                  class="space-y-6">
+
+                <input type="hidden" name="entry.967343855" id="productInput">
+
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Customer Name</label>
+                    <input type="text" name="entry.369241888" required
+                           class="w-full border-b border-slate-200 py-2 outline-none focus:border-emerald-700 bg-transparent transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">WhatsApp Number</label>
+                    <input type="text" name="entry.1490002744" required
+                           class="w-full border-b border-slate-200 py-2 outline-none focus:border-emerald-700 bg-transparent transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Delivery Address</label>
+                    <input type="text" name="entry.614471842" required
+                           class="w-full border-b border-slate-200 py-2 outline-none focus:border-emerald-700 bg-transparent transition-all">
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-900 text-white py-5 rounded-2xl font-bold uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-900/10 mt-4">
+                    Complete Order
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl z-[100] transform translate-x-full transition-transform duration-500 p-8 flex flex-col">
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-3xl font-serif text-emerald-950">Your Bag</h2>
+            <button onclick="toggleCart()" class="text-slate-400 hover:text-emerald-900"><i class="fa-solid fa-xmark text-2xl"></i></button>
+        </div>
+
+        <div id="cart-items" class="flex-grow overflow-y-auto space-y-6">
+        </div>
+
+        <div class="border-t border-slate-100 pt-6 mt-6 space-y-4">
+            <p id="cart-meta" class="text-sm text-slate-500">0 Items - K0.00</p>
+            <div class="flex justify-between font-bold text-xl">
+                <span>Total</span>
+                <span id="cart-total" class="text-emerald-700">K0.00</span>
+            </div>
+            <button id="checkout-btn" onclick="handleCheckout()" class="w-full bg-emerald-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-emerald-800 transition-all">
+                Proceed to Checkout
+            </button>
+        </div>
+    </div>
+
+    <section id="community" class="py-24 px-6 bg-[#f8f6f1] border-t border-slate-100">
+        <div class="max-w-5xl mx-auto space-y-10 text-center">
+            <div class="space-y-4">
+                <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-[0.4em]">Contact and Community</p>
+                <h2 class="text-4xl md:text-5xl text-emerald-950">Connect with the Apothecary</h2>
+                <p class="text-slate-500 max-w-3xl mx-auto leading-relaxed font-light">
+                    Our journey does not end at checkout. Join our digital circle on Facebook for daily wellness rituals, live herbal blend demonstrations, and direct access to wellness guidance.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 text-left">
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                    <p class="text-[10px] uppercase tracking-widest text-slate-400 mb-2">WhatsApp Inquiry</p>
+                    <p class="text-emerald-900 font-semibold">+260 976 410 975</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                    <p class="text-[10px] uppercase tracking-widest text-slate-400 mb-2">Facebook</p>
+                    <p class="text-emerald-900 font-semibold">Keria Wellness Official</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                    <p class="text-[10px] uppercase tracking-widest text-slate-400 mb-2">Location</p>
+                    <p class="text-emerald-900 font-semibold">Lusaka, Zambia</p>
+                    <p class="text-slate-500 text-sm mt-1">Nationwide Shipping Available</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="order" class="bg-slate-50 py-20 border-t border-slate-100">
+        <div class="max-w-7xl mx-auto px-6 text-center space-y-8">
+            <img src="images/keria_logo.svg" alt="Keria Logo" class="h-10 mx-auto opacity-50 grayscale">
+            <div class="h-[1px] w-12 bg-emerald-900/10 mx-auto"></div>
+            <p class="text-slate-400 text-[9px] uppercase tracking-[0.5em]">
+                Digital Architecture by <span class="text-slate-900 font-bold">Purple Worth Studios</span>
+            </p>
+
+            <div class="max-w-md mx-auto mt-20 p-8 bg-white rounded-[2.5rem] shadow-sm border border-emerald-50 text-center">
+                <div class="w-12 h-12 bg-emerald-900 text-white rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                </div>
+                <h3 class="text-xl font-serif text-emerald-950 mb-2">Speak with the Apothecary</h3>
+                <p class="text-xs text-slate-400 uppercase tracking-widest mb-8">Custom Blends & Consultations</p>
+
+                <a href="https://wa.me/260976410975" target="_blank"
+                   class="block w-full py-4 bg-emerald-900 text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-emerald-800 transition-all">
+                    Message 097 641 0975
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <iframe name="hidden_iframe" style="display:none;"></iframe>
+
+    <script src="products.js"></script>
+
+    <script>
+        const grid = document.getElementById('product-grid');
+        const filterButtons = document.getElementById('filter-container');
+        const sheetURL = 'https://docs.google.com/spreadsheets/d/e/YOUR_ID/pub?output=csv';
+        const fallbackProducts = typeof products !== 'undefined' ? products : [];
+        const masterCategories = Array.isArray(window.categories) ? [...window.categories] : [];
+        let catalog = [];
+        let currentCategory = 'all';
+        const CART_KEY = 'keria_cart_v1';
+        let cart = loadCart();
+
+        function scrollToCollection() {
+            const collection = document.getElementById('collection');
+            if (collection) {
+                collection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function openOrderModal(name, price) {
+            addToCart(name);
+        }
+
+        function closeModal() {
+            document.getElementById('orderModal').classList.add('hidden');
+        }
+
+        function handleSuccess() {
+            alert('Order Request Sent! Keria Wellness will contact you on WhatsApp.');
+            cart = [];
+            saveCart();
+            closeModal();
+        }
+
+        function loadCart() {
+            try {
+                return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+            updateCartCount();
+            renderCartDrawer();
+        }
+
+        function parsePrice(price) {
+            return Number(String(price).replace(/[^0-9.]/g, '')) || 0;
+        }
+
+        function formatPrice(amount) {
+            return `K${amount.toFixed(2)}`;
+        }
+
+        function buildOrderSummary() {
+            return cart.map(item => `${item.name} (${item.qty})`).join(', ');
+        }
+
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cart-count').innerText = count;
+        }
+
+        function addToCart(productName) {
+            const product = catalog.find(p => p.name === productName);
+            if (!product) {
+                return;
+            }
+
+            const existing = cart.find(item => item.name === product.name);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({
+                    name: product.name,
+                    price: product.price,
+                    qty: 1
+                });
+            }
+
+            saveCart();
+            toggleCart(true);
+        }
+
+        function changeQuantity(index, delta) {
+            if (!cart[index]) {
+                return;
+            }
+
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+
+            saveCart();
+        }
+
+        function toggleCart(forceOpen) {
+            const drawer = document.getElementById('cart-drawer');
+            const open = typeof forceOpen === 'boolean'
+                ? forceOpen
+                : drawer.classList.contains('translate-x-full');
+
+            if (open) {
+                drawer.classList.remove('translate-x-full');
+            } else {
+                drawer.classList.add('translate-x-full');
+            }
+        }
+
+        function renderCartDrawer() {
+            const itemsEl = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            const cartMetaEl = document.getElementById('cart-meta');
+            const checkoutBtn = document.getElementById('checkout-btn');
+
+            if (!cart.length) {
+                itemsEl.innerHTML = '<p class="text-slate-400 text-sm">Your bag is empty. Add products from the collection.</p>';
+                totalEl.innerText = 'K0.00';
+                cartMetaEl.innerText = '0 Items - K0.00';
+                checkoutBtn.disabled = true;
+                checkoutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                return;
+            }
+
+            checkoutBtn.disabled = false;
+            checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            itemsEl.innerHTML = cart.map((item, index) => `
+                <div class="rounded-2xl border border-slate-100 p-4 space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="font-semibold text-emerald-950">${item.name}</p>
+                            <p class="text-sm text-slate-400">${item.price}</p>
+                        </div>
+                        <button onclick="changeQuantity(${index}, -1)" class="text-slate-300 hover:text-rose-500" aria-label="Remove one item">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="changeQuantity(${index}, -1)" class="w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:text-emerald-900">-</button>
+                        <span class="text-sm font-bold">${item.qty}</span>
+                        <button onclick="changeQuantity(${index}, 1)" class="w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:text-emerald-900">+</button>
+                    </div>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((sum, item) => sum + (parsePrice(item.price) * item.qty), 0);
+            totalEl.innerText = formatPrice(total);
+            const count = cart.reduce((sum, item) => sum + item.qty, 0);
+            const label = count === 1 ? 'Item' : 'Items';
+            cartMetaEl.innerText = `${count} ${label} - K${total.toFixed(0)}`;
+        }
+
+        function processCheckout() {
+            if (!cart.length) {
+                alert('Your bag is empty!');
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + (parsePrice(item.price) * item.qty), 0);
+            
+            // Build Professional Apothecary Receipt
+            let orderText = '🌿 *KERIA WELLNESS: NEW ORDER*\n';
+            orderText += '----------------------------\n\n';
+            
+            // List items with numbering
+            cart.forEach((item, index) => {
+                orderText += `*${index + 1}.* ${item.name} [x${item.qty}]\n`;
+            });
+            
+            // Add financials and CTA
+            orderText += `\n💰 *Total Amount: K${total.toFixed(0)}*\n`;
+            orderText += '----------------------------\n';
+            orderText += '_Please send delivery details and MoMo confirmation._';
+            
+            // Launch WhatsApp with professional receipt
+            const whatsappURL = `https://wa.me/260976410975?text=${encodeURIComponent(orderText)}`;
+            window.open(whatsappURL, '_blank');
+        }
+
+        function handleCheckout() {
+            if (!cart.length) {
+                alert('Your bag is empty!');
+                return;
+            }
+            
+            const confirmOrder = confirm('Your Apothecary Bag is ready! \n\nClick OK to send your order to Keria Wellness via WhatsApp for final confirmation and delivery.');
+            
+            if (confirmOrder) {
+                processCheckout();
+            }
+        }
+
+
+
+        function openCheckoutModal() {
+            handleCheckout();
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+
+                if (char === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+
+            result.push(current.trim());
+            return result;
+        }
+
+        function csvToProducts(csvText) {
+            const rows = csvText.split(/\r?\n/).filter(Boolean);
+            if (rows.length < 2) {
+                return [];
+            }
+
+            const headers = parseCSVLine(rows[0]).map(h => h.toLowerCase());
+            const indexOf = (name) => headers.indexOf(name.toLowerCase());
+
+            const nameIndex = indexOf('name');
+            const priceIndex = indexOf('price');
+            const imageIndex = indexOf('imageurl');
+            const categoryIndex = indexOf('category');
+            const tagIndex = indexOf('tag');
+
+            return rows.slice(1).map(row => {
+                const cols = parseCSVLine(row);
+                return {
+                    name: cols[nameIndex] || '',
+                    price: cols[priceIndex] || 'K0',
+                    image: cols[imageIndex] || 'https://via.placeholder.com/600x800?text=Product',
+                    category: cols[categoryIndex] || 'Apothecary',
+                    tag: tagIndex >= 0 ? (cols[tagIndex] || '') : ''
+                };
+            }).filter(item => item.name && item.price);
+        }
+
+        async function fetchProducts() {
+            if (sheetURL.includes('YOUR_ID')) {
+                catalog = fallbackProducts;
+                renderCategoryFilters();
+                filterProducts('all');
+                return;
+            }
+
+            try {
+                const response = await fetch(sheetURL);
+                const data = await response.text();
+                const fromSheet = csvToProducts(data);
+                catalog = fromSheet.length ? fromSheet : fallbackProducts;
+            } catch (error) {
+                catalog = fallbackProducts;
+            }
+
+            renderCategoryFilters();
+            filterProducts(currentCategory);
+        }
+
+        function getAvailableCategories() {
+            const fromCatalog = [...new Set(catalog.map(item => item.category).filter(Boolean))];
+            const base = masterCategories.length ? masterCategories : fromCatalog;
+            return [...new Set([...base, ...fromCatalog])];
+        }
+
+        function renderCategoryFilters() {
+            const categoryButtons = ['all', ...getAvailableCategories()];
+
+            filterButtons.innerHTML = categoryButtons.map(cat => {
+                const active = cat === currentCategory;
+                const label = cat === 'all' ? 'All' : cat;
+                return `<button onclick="filterProducts('${cat}')" class="filter-btn ${active ? 'active' : ''}">${label}</button>`;
+            }).join('');
+        }
+
+        // THE RENDER ENGINE
+        function renderProducts(items = catalog) {
+            grid.innerHTML = items.map(product => `
+                <div class="group">
+                    <div class="relative aspect-[3/4] bg-slate-100 rounded-[2.5rem] overflow-hidden mb-8 shadow-sm group-hover:shadow-xl transition-all duration-700">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000">
+                        ${product.tag ? `<div class="absolute top-6 right-6 bg-white/90 backdrop-blur px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">${product.tag}</div>` : ''}
+                    </div>
+                    <div class="space-y-2 text-center md:text-left">
+                        <h3 class="text-2xl text-emerald-950">${product.name}</h3>
+                        <p class="text-slate-400 text-sm italic">${product.category}</p>
+                        <p class="text-emerald-700 font-bold tracking-widest">${product.price}</p>
+                        <button onclick="addToCart('${product.name}')" class="mt-3 inline-flex items-center gap-2 bg-emerald-900 text-white px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors">
+                            <i class="fa-solid fa-bag-shopping"></i>
+                            Add to Bag
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterProducts(cat) {
+            currentCategory = cat;
+            const filtered = cat === 'all' ? catalog : catalog.filter(p => p.category === cat);
+            renderCategoryFilters();
+            renderProducts(filtered); // Pass the filtered list to your render function
+        }
+
+        // INITIALIZE THE SHOP
+        fetchProducts();
+        renderCartDrawer();
+        updateCartCount();
+    </script>
+
+    <div id="floating-cart" class="fixed bottom-8 right-8 z-[60] md:hidden">
+        <button onclick="toggleCart()" class="bg-emerald-900 text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center border-4 border-white">
+            <i class="fa-solid fa-bag-shopping text-xl"></i>
+        </button>
+    </div>
+
+    <a href="https://wa.me/260976410975" target="_blank" aria-label="WhatsApp Consultation"
+       class="fixed bottom-8 left-8 z-[60] bg-white text-emerald-900 w-16 h-16 rounded-full shadow-2xl border-4 border-emerald-100 flex items-center justify-center hover:bg-emerald-900 hover:text-white transition-all">
+        <i class="fa-brands fa-whatsapp text-2xl"></i>
+    </a>
+</body>
+</html>
