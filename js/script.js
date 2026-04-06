@@ -1,10 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const grid = document.querySelector('#product-grid');
+    const filterBar = document.querySelector('#category-filters');
     if (!grid) {
         return;
     }
 
     const fallbackProducts = Array.isArray(products) ? products : [];
+    let allProducts = [];
+    let activeCategory = 'All';
 
     function normalizeProduct(product) {
         return {
@@ -19,6 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderProductCards(items) {
         grid.innerHTML = '';
+
+        if (!items.length) {
+            grid.innerHTML = '<div class="product-card" style="grid-column: 1 / -1; text-align: center;"><h3 style="color: var(--keria-emerald); font-family: \"Playfair Display\", serif;">No products found</h3><p style="color: #64748b; margin-bottom: 0;">Try another category.</p></div>';
+            return;
+        }
+
         items.forEach((product) => {
             const messagePrefix = typeof CONFIG !== 'undefined' && CONFIG.whatsappMessage
                 ? CONFIG.whatsappMessage
@@ -49,9 +58,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function getCategories(items) {
+        return ['All', ...new Set(items.map((item) => item.category).filter(Boolean))];
+    }
+
+    function applyFilter(category) {
+        activeCategory = category;
+        const filtered = category === 'All'
+            ? allProducts
+            : allProducts.filter((item) => item.category === category);
+        renderFilterButtons(getCategories(allProducts));
+        renderProductCards(filtered);
+    }
+
+    function renderFilterButtons(categories) {
+        if (!filterBar) {
+            return;
+        }
+
+        filterBar.innerHTML = categories.map((category) => `
+            <button class="filter-btn ${category === activeCategory ? 'active' : ''}" data-category="${category}">
+                ${category}
+            </button>
+        `).join('');
+
+        filterBar.querySelectorAll('.filter-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+                applyFilter(button.dataset.category);
+            });
+        });
+    }
+
     async function loadProducts() {
         if (!_supabase) {
-            renderProductCards(fallbackProducts.map(normalizeProduct));
+            allProducts = fallbackProducts.map(normalizeProduct);
+            renderFilterButtons(getCategories(allProducts));
+            applyFilter('All');
             return;
         }
 
@@ -62,14 +104,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 .order('id', { ascending: false });
 
             if (error) {
-                renderProductCards(fallbackProducts.map(normalizeProduct));
+                allProducts = fallbackProducts.map(normalizeProduct);
+                renderFilterButtons(getCategories(allProducts));
+                applyFilter('All');
                 return;
             }
 
             const liveProducts = Array.isArray(data) ? data.map(normalizeProduct) : [];
-            renderProductCards(liveProducts.length ? liveProducts : fallbackProducts.map(normalizeProduct));
+            allProducts = liveProducts.length ? liveProducts : fallbackProducts.map(normalizeProduct);
+            renderFilterButtons(getCategories(allProducts));
+            applyFilter('All');
         } catch (error) {
-            renderProductCards(fallbackProducts.map(normalizeProduct));
+            allProducts = fallbackProducts.map(normalizeProduct);
+            renderFilterButtons(getCategories(allProducts));
+            applyFilter('All');
         }
     }
 
