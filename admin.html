@@ -78,7 +78,22 @@
                 <h2 class="text-3xl font-serif text-emerald-950">Live Inventory</h2>
                 <p class="text-xs text-slate-400 uppercase tracking-widest" id="item-count">0 Items</p>
             </div>
-            <div id="inventory-list" class="space-y-3"></div>
+            <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead class="bg-emerald-50/70">
+                            <tr class="text-left">
+                                <th class="p-4 text-[10px] font-bold uppercase tracking-widest text-emerald-900">Product</th>
+                                <th class="p-4 text-[10px] font-bold uppercase tracking-widest text-emerald-900">Category</th>
+                                <th class="p-4 text-[10px] font-bold uppercase tracking-widest text-emerald-900">Price</th>
+                                <th class="p-4 text-[10px] font-bold uppercase tracking-widest text-emerald-900">Stock</th>
+                                <th class="p-4 text-[10px] font-bold uppercase tracking-widest text-emerald-900 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-product-list"></tbody>
+                    </table>
+                </div>
+            </div>
 
             <div class="mt-12 p-8 bg-emerald-950 rounded-[2rem] text-white">
                 <p class="text-[10px] font-bold opacity-50 uppercase tracking-[0.3em] mb-4 text-center">Sync Intelligence</p>
@@ -95,7 +110,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
-    <script src="js/products.js"></script>
     <script src="js/admin.js"></script>
 </body>
 </html>

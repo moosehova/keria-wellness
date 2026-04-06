@@ -1,4 +1,4 @@
-let inventory = Array.isArray(products) ? [...products] : [];
+let inventory = [];
 let editingId = null;
 const categorySeed = [...new Set(inventory.map((item) => item.category).filter(Boolean))];
 if (!Array.isArray(window.categories) || !window.categories.length) {
@@ -64,29 +64,45 @@ function deleteCategory(index) {
 }
 
 function renderInventory() {
-    const list = document.getElementById('inventory-list');
+    const list = document.getElementById('admin-product-list');
     document.getElementById('item-count').innerText = `${inventory.length} Items`;
 
+    if (!list) {
+        return;
+    }
+
+    if (!inventory.length) {
+        list.innerHTML = `
+            <tr>
+                <td colspan="5" class="p-6 text-sm text-slate-400 text-center">No products found.</td>
+            </tr>
+        `;
+        return;
+    }
+
     list.innerHTML = inventory.map((product, index) => `
-        <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:border-emerald-200 transition-all">
-            <div class="flex items-center gap-4">
-                <img src="${product.image}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://via.placeholder.com/120'">
-                <div>
-                    <h4 class="font-bold text-sm text-emerald-950">${product.name}</h4>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-tighter">${product.category} • ${product.price}</p>
-                    <p class="text-[10px] text-slate-500">${product.benefits || ''}</p>
-                    <p class="text-[10px] font-bold ${product.is_in_stock === false ? 'text-rose-500' : 'text-emerald-600'}">${product.is_in_stock === false ? 'OUT OF STOCK' : 'IN STOCK'}</p>
+        <tr class="border-b border-emerald-900/10">
+            <td class="p-4">
+                <div class="flex items-center gap-3">
+                    <img src="${product.image}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://via.placeholder.com/120'">
+                    <div>
+                        <p class="text-xs font-bold text-emerald-900">${product.name}</p>
+                        <p class="text-[11px] text-slate-500">${product.benefits || ''}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="editProduct(${index})" class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all">
-                    <i class="fa-solid fa-pen text-xs"></i>
-                </button>
-                <button onclick="deleteProduct(${index})" class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all">
-                    <i class="fa-solid fa-trash text-xs"></i>
-                </button>
-            </div>
-        </div>
+            </td>
+            <td class="p-4 text-xs text-slate-500">${product.category}</td>
+            <td class="p-4 text-xs text-emerald-700 font-black">${product.price}</td>
+            <td class="p-4">
+                <span class="px-2 py-1 rounded-full text-[9px] ${product.is_in_stock === false ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">
+                    ${product.is_in_stock === false ? 'OUT OF STOCK' : 'IN STOCK'}
+                </span>
+            </td>
+            <td class="p-4 text-right">
+                <button onclick="editProduct(${index})" class="text-blue-600 hover:text-blue-800 text-xs font-bold mr-3">Edit</button>
+                <button onclick="deleteProduct(${product.id})" class="text-red-500 hover:text-red-700 text-xs font-bold">Delete</button>
+            </td>
+        </tr>
     `).join('');
 }
 
@@ -187,26 +203,26 @@ async function saveProduct() {
     alert(_supabase ? 'Success! Product is now live on Keria Wellness.' : 'Inventory updated locally. Generate product data to export.');
 }
 
-async function deleteProduct(index) {
-    if (index < 0 || index >= inventory.length) {
+async function deleteProduct(id) {
+    const item = inventory.find((product) => product.id === id);
+    if (!item) {
         return;
     }
 
-    const item = inventory[index];
-    if (!confirm(`Delete ${item.name}?`)) {
+    if (!confirm('Are you sure you want to remove this product from Keria Wellness?')) {
         return;
     }
 
     if (_supabase && item.id) {
         const { error } = await _supabase.from('products').delete().eq('id', item.id);
         if (error) {
-            console.error('Error deleting:', error.message);
-            alert('Failed to delete. Check console.');
+            console.error('Admin Fetch Error:', error.message);
+            alert('Error deleting product');
             return;
         }
-        await loadInventory();
+        await refreshAdminTable();
     } else {
-        inventory.splice(index, 1);
+        inventory = inventory.filter((product) => product.id !== id);
         renderInventory();
     }
 
@@ -257,7 +273,7 @@ async function exportData() {
     }
 }
 
-async function loadInventory() {
+async function refreshAdminTable() {
     if (!_supabase) {
         renderInventory();
         hydrateCategoriesFromInventory();
@@ -270,7 +286,7 @@ async function loadInventory() {
         .order('id', { ascending: false });
 
     if (error) {
-        console.error('Database Error:', error.message);
+        console.error('Admin Fetch Error:', error.message);
         renderInventory();
         hydrateCategoriesFromInventory();
         return;
@@ -290,6 +306,10 @@ async function loadInventory() {
     hydrateCategoriesFromInventory();
 }
 
+async function loadInventory() {
+    await refreshAdminTable();
+}
+
 window.addCategory = addCategory;
 window.deleteCategory = deleteCategory;
 window.editProduct = editProduct;
@@ -298,8 +318,9 @@ window.deleteProduct = deleteProduct;
 window.resetForm = resetForm;
 window.exportCode = exportCode;
 window.exportData = exportData;
+window.refreshAdminTable = refreshAdminTable;
 
 window.addEventListener('DOMContentLoaded', () => {
     syncCategories();
-    loadInventory();
+    refreshAdminTable();
 });
