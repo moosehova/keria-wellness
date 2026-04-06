@@ -75,6 +75,9 @@
                 <button onclick="exportCode()" class="w-full bg-emerald-700 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all">
                     Generate Product Data (js/products.js)
                 </button>
+                <button onclick="exportData()" class="w-full mt-3 bg-white/10 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white/20 transition-all border border-white/20">
+                    Copy Product Code
+                </button>
                 <pre id="output-code" class="mt-4 p-4 bg-emerald-900 rounded-xl text-[11px] text-emerald-100 whitespace-pre-wrap break-words hidden"></pre>
             </div>
         </div>
@@ -247,11 +250,27 @@
             syncCategories();
         }
 
+        function buildProductsCode() {
+            return `const products = ${JSON.stringify(inventory, null, 4)};`;
+        }
+
         function exportCode() {
             const output = document.getElementById('output-code');
             output.classList.remove('hidden');
-            output.textContent = `const products = ${JSON.stringify(inventory, null, 4)};`;
+            output.textContent = buildProductsCode();
             output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        async function exportData() {
+            const code = buildProductsCode();
+            console.log(code);
+
+            try {
+                await navigator.clipboard.writeText(code);
+                alert('Product code copied. Paste it into js/products.js, then commit and push.');
+            } catch (error) {
+                alert('Code printed to console. Copy it from DevTools Console and paste into js/products.js.');
+            }
         }
 
         syncCategories();
