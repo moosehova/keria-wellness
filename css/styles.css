@@ -98,6 +98,34 @@ nav {
     font-family: 'Playfair Display', serif;
 }
 
+.search-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.search-wrap {
+    max-width: 900px;
+    margin: 0 auto 12px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 16px 18px;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(6, 78, 59, 0.1);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    color: var(--text-main);
+}
+
+.search-input:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.08);
+}
+
 .filter-bar {
     display: flex;
     flex-wrap: wrap;

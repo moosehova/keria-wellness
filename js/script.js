@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const grid = document.querySelector('#product-grid');
     const filterBar = document.querySelector('#category-filters');
+    const searchInput = document.querySelector('#productSearch');
     if (!grid) {
         return;
     }
@@ -8,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fallbackProducts = Array.isArray(products) ? products : [];
     let allProducts = [];
     let activeCategory = 'All';
+    let searchTerm = '';
 
     function normalizeProduct(product) {
         return {
@@ -72,9 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function applyFilter(category) {
         activeCategory = category;
-        const filtered = category === 'All'
-            ? allProducts
-            : allProducts.filter((item) => item.category === category);
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        const filtered = allProducts.filter((item) => {
+            const matchesCategory = category === 'All' || item.category === category;
+            const haystack = `${item.name} ${item.category} ${item.benefits}`.toLowerCase();
+            const matchesSearch = !normalizedSearch || haystack.includes(normalizedSearch);
+            return matchesCategory && matchesSearch;
+        });
         renderFilterButtons(getCategories(allProducts));
         renderProductCards(filtered);
     }
@@ -128,6 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
             applyFilter('All');
         }
     }
+
+    searchInput?.addEventListener('input', (event) => {
+        searchTerm = event.target.value || '';
+        applyFilter(activeCategory);
+    });
 
     loadProducts();
 });
