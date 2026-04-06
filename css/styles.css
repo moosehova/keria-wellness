@@ -562,6 +562,36 @@ nav {
     color: #64748b;
     font-size: 0.78rem;
     margin: 10px 0 40px;
+    padding: 0 20px;
+}
+
+.social-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 14px;
+}
+
+.social-links a {
+    color: var(--keria-emerald);
+    opacity: 0.9;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.social-links a:hover {
+    color: #10b981;
+    transform: translateY(-2px);
+}
+
+.credit-line {
+    margin: 0;
+}
+
+.copyright-line {
+    margin: 4px 0 0;
+    font-size: 0.72rem;
+    color: #94a3b8;
 }
 
 @media (max-width: 768px) {
