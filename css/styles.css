@@ -154,6 +154,29 @@ nav {
     border-color: var(--keria-emerald);
 }
 
+.product-card--soldout {
+    filter: grayscale(0.5);
+}
+
+.product-image-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.5rem;
+}
+
+.stock-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+}
+
 .product-card img {
     width: 100%;
     border-radius: 1.5rem;
@@ -183,6 +206,11 @@ nav {
     margin-top: 8px;
 }
 
+.category-badge--soldout {
+    background: #9ca3af;
+    color: #fff;
+}
+
 .product-row {
     display: flex;
     justify-content: space-between;
@@ -210,6 +238,14 @@ nav {
 .btn-primary:hover {
     transform: translateY(-1px);
     box-shadow: 0 10px 20px rgba(6, 78, 59, 0.2);
+}
+
+.btn-primary--disabled,
+.btn-primary--disabled:hover {
+    opacity: 0.5;
+    pointer-events: none;
+    box-shadow: none;
+    transform: none;
 }
 
 .card-btn {

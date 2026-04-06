@@ -75,6 +75,7 @@ function renderInventory() {
                     <h4 class="font-bold text-sm text-emerald-950">${product.name}</h4>
                     <p class="text-[10px] text-slate-400 uppercase tracking-tighter">${product.category} • ${product.price}</p>
                     <p class="text-[10px] text-slate-500">${product.benefits || ''}</p>
+                    <p class="text-[10px] font-bold ${product.is_in_stock === false ? 'text-rose-500' : 'text-emerald-600'}">${product.is_in_stock === false ? 'OUT OF STOCK' : 'IN STOCK'}</p>
                 </div>
             </div>
             <div class="flex gap-2">
@@ -101,6 +102,7 @@ function editProduct(index) {
     document.getElementById('p-name').value = product.name || '';
     document.getElementById('p-price').value = product.price || '';
     document.getElementById('p-benefits').value = product.benefits || '';
+    document.getElementById('is_in_stock').checked = product.is_in_stock !== false;
 
     if (product.category && !window.categories.includes(product.category)) {
         window.categories.push(product.category);
@@ -135,7 +137,8 @@ async function saveProduct() {
         price: document.getElementById('p-price').value.trim(),
         category: document.getElementById('p-category').value,
         benefits: document.getElementById('p-benefits').value.trim(),
-        image: imageData
+        image: imageData,
+        is_in_stock: document.getElementById('is_in_stock').checked
     };
 
     if (!newProduct.name || !newProduct.price || !newProduct.image) {
@@ -149,7 +152,8 @@ async function saveProduct() {
             price: newProduct.price,
             category: newProduct.category,
             benefits: newProduct.benefits,
-            image_url: newProduct.image
+            image_url: newProduct.image,
+            is_in_stock: newProduct.is_in_stock
         };
 
         let error;
@@ -217,6 +221,7 @@ function resetForm() {
     document.getElementById('product-image-file').value = '';
     document.getElementById('p-image').value = '';
     document.getElementById('p-benefits').value = '';
+    document.getElementById('is_in_stock').checked = true;
     syncCategories();
 }
 
@@ -227,7 +232,8 @@ function buildProductsCode() {
         category: item.category,
         price: item.price,
         benefits: item.benefits || '',
-        image: item.image
+        image: item.image,
+        is_in_stock: item.is_in_stock !== false
     }));
     return `const products = ${JSON.stringify(portable, null, 4)};`;
 }
@@ -276,7 +282,8 @@ async function loadInventory() {
         price: item.price,
         category: item.category,
         benefits: item.benefits,
-        image: item.image_url
+        image: item.image_url,
+        is_in_stock: item.is_in_stock !== false
     }));
 
     renderInventory();

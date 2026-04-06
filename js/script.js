@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
             category: product.category || 'Wellness',
             price: product.price || 'K0',
             benefits: product.benefits || '',
-            image: product.image_url || product.image || 'images/default-product.jpg'
+            image: product.image_url || product.image || 'images/default-product.jpg',
+            isInStock: product.is_in_stock !== false
         };
     }
 
@@ -35,20 +36,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const whatsappNumber = typeof CONFIG !== 'undefined' && CONFIG.whatsapp
                 ? CONFIG.whatsapp
                 : '260976410975';
+            const outOfStock = product.isInStock === false;
+            const badgeClass = outOfStock ? 'category-badge category-badge--soldout' : 'category-badge';
+            const statusText = outOfStock ? 'Sold Out' : product.category;
+            const buttonClass = outOfStock ? 'btn-primary btn-primary--disabled' : 'btn-primary';
+            const buttonText = outOfStock ? 'Unavailable' : 'Order Now';
+            const cardClass = outOfStock ? 'product-card product-card--soldout' : 'product-card';
 
             const card = `
-                <div class="product-card">
-                    <div style="overflow: hidden; border-radius: 1.5rem;">
+                <div class="${cardClass}">
+                    <div class="product-image-wrap">
                         <img src="${product.image}" onerror="this.src='images/default-product.jpg'" alt="${product.name}" style="width: 100%; display: block;">
+                        ${outOfStock ? '<div class="stock-overlay">OUT OF STOCK</div>' : ''}
                     </div>
                     <div style="padding-top: 15px;">
-                        <span class="category-badge">${product.category}</span>
+                        <span class="${badgeClass}">${statusText}</span>
                         <h3 style="color: var(--keria-emerald); margin: 10px 0 5px 0; font-family: 'Playfair Display', serif;">${product.name}</h3>
                         <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 15px;">${product.benefits}</p>
 
                         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; margin-top: 10px; padding-top: 15px; gap: 10px;">
                             <span style="font-weight: 800; color: var(--keria-emerald);">${product.price}</span>
-                            <a href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messagePrefix + product.name)}" class="btn-primary" style="font-size: 0.7rem; padding: 8px 16px;" target="_blank" rel="noopener noreferrer">Order Now</a>
+                            <a href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messagePrefix + product.name)}" class="${buttonClass}" style="font-size: 0.7rem; padding: 8px 16px;" target="_blank" rel="noopener noreferrer">${buttonText}</a>
                         </div>
                     </div>
                 </div>
