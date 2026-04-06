@@ -5,6 +5,47 @@ if (!Array.isArray(window.categories) || !window.categories.length) {
     window.categories = categorySeed.length ? categorySeed : ['Nuts', 'Seeds', 'Specialty'];
 }
 
+function setAuthError(message = '') {
+    const errorTag = document.getElementById('login-error');
+    if (!errorTag) {
+        return;
+    }
+
+    if (message) {
+        errorTag.textContent = message;
+        errorTag.classList.remove('hidden');
+    } else {
+        errorTag.textContent = '';
+        errorTag.classList.add('hidden');
+    }
+}
+
+function showLoginOverlay() {
+    document.getElementById('login-overlay')?.classList.remove('hidden');
+    document.getElementById('admin-dashboard')?.classList.add('hidden');
+}
+
+function showDashboard() {
+    document.getElementById('login-overlay')?.classList.add('hidden');
+    document.getElementById('admin-dashboard')?.classList.remove('hidden');
+    setAuthError('');
+}
+
+async function requireSession() {
+    if (!_supabase || !_supabase.auth) {
+        return true;
+    }
+
+    const { data, error } = await _supabase.auth.getSession();
+    if (error || !data?.session) {
+        showLoginOverlay();
+        setAdminStatus('Session required. Please sign in to continue.', 'warning');
+        return false;
+    }
+
+    return true;
+}
+
 function setAdminStatus(message, tone = 'warning') {
     const status = document.getElementById('admin-status');
     if (!status) {
@@ -150,6 +191,10 @@ function editProduct(index) {
 }
 
 async function saveProduct() {
+    if (!(await requireSession())) {
+        return;
+    }
+
     const index = parseInt(document.getElementById('edit-index').value, 10);
     const fileInput = document.getElementById('product-image-file');
     const urlInput = document.getElementById('p-image').value.trim();
@@ -222,6 +267,10 @@ async function saveProduct() {
 }
 
 async function deleteProduct(id) {
+    if (!(await requireSession())) {
+        return;
+    }
+
     const item = inventory.find((product) => product.id === id);
     if (!item) {
         return;
@@ -299,6 +348,10 @@ async function refreshAdminTable() {
         return;
     }
 
+    if (!(await requireSession())) {
+        return;
+    }
+
     const { data, error } = await _supabase
         .from('products')
         .select('*')
@@ -334,6 +387,39 @@ async function loadInventory() {
     await refreshAdminTable();
 }
 
+async function handleLogin() {
+    if (!_supabase || !_supabase.auth) {
+        alert('Supabase auth is not available. Check js/config.js credentials.');
+        return;
+    }
+
+    const email = document.getElementById('auth-email')?.value.trim();
+    const password = document.getElementById('auth-password')?.value || '';
+
+    if (!email || !password) {
+        setAuthError('Enter both email and password.');
+        return;
+    }
+
+    setAuthError('');
+    const { error } = await _supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+        setAuthError(`Access denied: ${error.message}`);
+        return;
+    }
+
+    showDashboard();
+    await refreshAdminTable();
+}
+
+async function handleLogout() {
+    if (_supabase && _supabase.auth) {
+        await _supabase.auth.signOut();
+    }
+    showLoginOverlay();
+    setAdminStatus('Signed out. Please sign in to continue.', 'warning');
+}
+
 window.addCategory = addCategory;
 window.deleteCategory = deleteCategory;
 window.editProduct = editProduct;
@@ -343,8 +429,40 @@ window.resetForm = resetForm;
 window.exportCode = exportCode;
 window.exportData = exportData;
 window.refreshAdminTable = refreshAdminTable;
+window.handleLogin = handleLogin;
+window.handleLogout = handleLogout;
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
     syncCategories();
-    refreshAdminTable();
+
+    if (!_supabase || !_supabase.auth) {
+        showDashboard();
+        setAdminStatus('Supabase auth unavailable; dashboard opened in fallback mode.', 'warning');
+        await refreshAdminTable();
+        return;
+    }
+
+    const { data, error } = await _supabase.auth.getSession();
+    if (error) {
+        showLoginOverlay();
+        setAuthError(error.message);
+        return;
+    }
+
+    if (data?.session) {
+        showDashboard();
+        await refreshAdminTable();
+    } else {
+        showLoginOverlay();
+        setAdminStatus('Please sign in to access inventory controls.', 'warning');
+    }
+
+    _supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (session) {
+            showDashboard();
+            await refreshAdminTable();
+        } else {
+            showLoginOverlay();
+        }
+    });
 });

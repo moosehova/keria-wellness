@@ -13,6 +13,25 @@
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-[#f8f6f2] via-[#fdfcf9] to-[#eef3ed] text-slate-900 p-6 md:p-12">
+    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-emerald-950/90 p-6">
+        <div class="w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl">
+            <h1 class="text-2xl font-black tracking-tight text-emerald-900">Admin Login</h1>
+            <p class="mt-1 text-sm text-slate-500">Sign in to manage Keria Wellness inventory.</p>
+            <div class="mt-6 space-y-4">
+                <input type="email" id="auth-email" placeholder="Email" class="w-full rounded-2xl border border-slate-200 p-4 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200">
+                <input type="password" id="auth-password" placeholder="Password" class="w-full rounded-2xl border border-slate-200 p-4 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200">
+                <p id="login-error" class="hidden text-xs font-semibold text-rose-600"></p>
+                <button type="button" onclick="handleLogin()" class="w-full rounded-2xl bg-emerald-700 py-3 font-bold text-white transition hover:bg-emerald-600">Enter Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-dashboard" class="hidden">
+        <div class="mx-auto mb-6 flex w-full max-w-7xl items-center justify-between rounded-2xl border border-emerald-100 bg-white px-5 py-4 shadow-sm">
+            <p class="text-sm font-bold uppercase tracking-widest text-emerald-900">Keria Admin Control</p>
+            <button type="button" onclick="handleLogout()" class="rounded-full border border-rose-200 px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-600 transition hover:bg-rose-50">Logout</button>
+        </div>
+
     <div class="max-w-7xl mx-auto px-6 py-12 grid lg:grid-cols-2 gap-16">
         <div class="bg-white p-10 rounded-[3rem] shadow-xl border border-slate-100 sticky top-32 h-fit">
             <div class="mb-10 p-6 bg-emerald-50 rounded-2xl border border-emerald-100">
@@ -107,6 +126,8 @@
                 <pre id="output-code" class="mt-4 p-4 bg-emerald-900 rounded-xl text-[11px] text-emerald-100 whitespace-pre-wrap break-words hidden"></pre>
             </div>
         </div>
+    </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
