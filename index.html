@@ -8,12 +8,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
+        body {
+            font-family: 'Inter', sans-serif;
             scroll-behavior: smooth;
-            background-color: #fdfbf7;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' result='noise' /%3E%3C/filter%3E%3Crect width='400' height='400' fill='%23fdfbf7' /%3E%3Crect width='400' height='400' fill='%23ffffff' opacity='0.03' filter='url(%23noiseFilter)' /%3E%3C/svg%3E");
-            background-size: 100% 100%;
+            background-color: #fcfaf7;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(5, 150, 105, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
         }
         h1, h2, h3 { font-family: 'Playfair Display', serif; }
         .wellness-gradient { 
@@ -58,6 +60,19 @@
         .filter-btn:not(.active):hover {
             border-color: #064e3b;
             transform: translateY(-1px);
+        }
+        .product-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 2rem;
+            padding: 1rem;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(6, 78, 59, 0.1);
         }
         /* Glassmorphism for modals and cart */
         .glass-panel {
@@ -564,7 +579,7 @@
         // THE RENDER ENGINE
         function renderProducts(items = catalog) {
             grid.innerHTML = items.map(product => `
-                <div class="group">
+                <div class="group product-card">
                     <div class="relative aspect-[3/4] bg-slate-100 rounded-[2.5rem] overflow-hidden mb-8 shadow-sm group-hover:shadow-xl transition-all duration-700">
                         <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000">
                         ${product.tag ? `<div class="absolute top-6 right-6 bg-white/90 backdrop-blur px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">${product.tag}</div>` : ''}

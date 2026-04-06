@@ -1,5 +1,5 @@
 // MASTER CATEGORY LIST
-let categories = ["Superfoods", "Apothecary", "Snacks", "Healing Oils", "Seeds"];
+let categories = ["Nuts", "Fitness & Energy", "Fruit Blends", "Functional Seeds", "Trail Mixes", "Wellness Infusions", "Men's Wellness"];
 
 const products = [
     {
