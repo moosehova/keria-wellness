@@ -584,6 +584,19 @@ nav {
     transform: translateY(-2px);
 }
 
+.social-link--tiktok:hover,
+.social-link--x:hover {
+    color: #111827;
+}
+
+.social-link--facebook:hover {
+    color: #2563eb;
+}
+
+.social-link--instagram:hover {
+    color: #db2777;
+}
+
 .credit-line {
     margin: 0;
 }
