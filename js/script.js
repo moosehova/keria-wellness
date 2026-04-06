@@ -5,14 +5,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.querySelector('#productModal');
     const modalContent = document.querySelector('#modalContent');
     const productCount = document.querySelector('#productCount');
+    const cartFab = document.querySelector('#cart-fab');
+    const cartFabBtn = document.querySelector('#cart-fab-btn');
+    const cartCount = document.querySelector('#cart-count');
+    const cartModal = document.querySelector('#cartModal');
+    const cartItems = document.querySelector('#cart-items');
+    const cartCheckout = document.querySelector('#cart-checkout');
+    const cartClear = document.querySelector('#cart-clear');
     if (!grid) {
         return;
     }
 
     const fallbackProducts = Array.isArray(products) ? products : [];
+    const hasCartUI = Boolean(cartFab && cartFabBtn && cartCount && cartModal && cartItems && cartCheckout && cartClear);
     let allProducts = [];
     let activeCategory = 'All';
     let searchTerm = '';
+    let cart = [];
 
     function normalizeProduct(product) {
         return {
@@ -48,9 +57,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const badgeClass = outOfStock ? 'category-badge category-badge--soldout' : 'category-badge';
             const statusText = outOfStock ? 'Sold Out' : product.category;
             const buttonClass = outOfStock ? 'btn-primary btn-primary--disabled' : 'btn-primary';
-            const buttonText = outOfStock ? 'Unavailable' : 'Order Now';
+            const buttonText = outOfStock ? 'Unavailable' : (hasCartUI ? 'Add to Cart' : 'Order Now');
             const cardClass = outOfStock ? 'product-card product-card--soldout' : 'product-card';
             const modalPointerClass = modal ? 'product-card--interactive' : '';
+            const actionMarkup = outOfStock
+                ? `<button type="button" class="${buttonClass}" style="font-size: 0.7rem; padding: 8px 16px;">${buttonText}</button>`
+                : (hasCartUI
+                    ? `<button type="button" class="${buttonClass}" data-add-cart="${product.id}" style="font-size: 0.7rem; padding: 8px 16px;">${buttonText}</button>`
+                    : `<a href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messagePrefix + product.name)}" class="${buttonClass}" style="font-size: 0.7rem; padding: 8px 16px;" target="_blank" rel="noopener noreferrer">${buttonText}</a>`);
 
             const card = `
                 <div class="${cardClass} ${modalPointerClass}" ${modal ? `data-product-id="${product.id}"` : ''}>
@@ -65,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; margin-top: 10px; padding-top: 15px; gap: 10px;">
                             <span style="font-weight: 800; color: var(--keria-emerald);">${product.price}</span>
-                            <a href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messagePrefix + product.name)}" class="${buttonClass}" style="font-size: 0.7rem; padding: 8px 16px;" target="_blank" rel="noopener noreferrer">${buttonText}</a>
+                            ${actionMarkup}
                         </div>
                     </div>
                 </div>
@@ -93,6 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
             : '260976410975';
         const outOfStock = product.isInStock === false;
 
+        const modalActionMarkup = outOfStock
+            ? '<button type="button" class="btn-primary btn-primary--disabled">Unavailable</button>'
+            : (hasCartUI
+                ? `<button type="button" class="btn-primary" data-modal-add-cart="${product.id}">Add to Cart</button>`
+                : `<a href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messagePrefix + product.name)}" class="btn-primary" target="_blank" rel="noopener noreferrer">Order via WhatsApp</a>`);
+
         modalContent.innerHTML = `
             <img src="${product.image}" alt="${product.name}" class="modal-image" onerror="this.src='images/default-product.jpg'">
             <span class="category-badge ${outOfStock ? 'category-badge--soldout' : ''}">${outOfStock ? 'Sold Out' : product.category}</span>
@@ -100,10 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="modal-copy">${product.benefits || 'Pure wellness support for your daily routine.'}</p>
             <div class="modal-row">
                 <span class="modal-price">${product.price}</span>
-                ${outOfStock
-                    ? '<button type="button" class="btn-primary btn-primary--disabled">Unavailable</button>'
-                    : `<a href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messagePrefix + product.name)}" class="btn-primary" target="_blank" rel="noopener noreferrer">Order via WhatsApp</a>`
-                }
+                ${modalActionMarkup}
             </div>
         `;
 
@@ -119,6 +136,116 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.remove('is-open');
         modal.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
+    }
+
+    function getNumericPrice(price) {
+        const parsed = Number(String(price || '').replace(/[^0-9.]/g, ''));
+        return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function formatCurrency(value) {
+        return `K${value.toFixed(0)}`;
+    }
+
+    function renderCartItems() {
+        if (!hasCartUI) {
+            return;
+        }
+
+        if (!cart.length) {
+            cartItems.innerHTML = '<p class="modal-copy" style="margin: 0;">Your cart is empty. Add products to build your order.</p>';
+            return;
+        }
+
+        const total = cart.reduce((sum, item) => sum + getNumericPrice(item.price), 0);
+        const rows = cart.map((item, index) => `
+            <div class="cart-item">
+                <div>
+                    <p class="cart-item__title">${item.name}</p>
+                    <p class="cart-item__meta">${item.price}</p>
+                </div>
+                <button type="button" class="cart-item__remove" data-cart-remove="${index}">Remove</button>
+            </div>
+        `).join('');
+
+        cartItems.innerHTML = `${rows}<div class="cart-total">Total: ${formatCurrency(total)}</div>`;
+    }
+
+    function updateCartUI() {
+        if (!hasCartUI) {
+            return;
+        }
+
+        cartCount.textContent = String(cart.length);
+        if (cart.length > 0) {
+            cartFab.classList.remove('hidden');
+            cartFab.setAttribute('aria-hidden', 'false');
+        } else {
+            cartFab.classList.add('hidden');
+            cartFab.setAttribute('aria-hidden', 'true');
+            cartModal.classList.remove('is-open');
+            cartModal.setAttribute('aria-hidden', 'true');
+            if (!modal || !modal.classList.contains('is-open')) {
+                document.body.style.overflow = '';
+            }
+        }
+
+        renderCartItems();
+    }
+
+    function addToCart(productId) {
+        const product = allProducts.find((item) => String(item.id) === String(productId));
+        if (!product || product.isInStock === false) {
+            return;
+        }
+
+        cart.push(product);
+        updateCartUI();
+    }
+
+    function toggleCartModal(forceOpen = null) {
+        if (!hasCartUI) {
+            return;
+        }
+        if (!cart.length) {
+            return;
+        }
+
+        const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !cartModal.classList.contains('is-open');
+        if (shouldOpen) {
+            cartModal.classList.add('is-open');
+            cartModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        } else {
+            cartModal.classList.remove('is-open');
+            cartModal.setAttribute('aria-hidden', 'true');
+            if (!modal || !modal.classList.contains('is-open')) {
+                document.body.style.overflow = '';
+            }
+        }
+    }
+
+    function checkoutWhatsApp() {
+        if (!cart.length) {
+            return;
+        }
+
+        const messagePrefix = typeof CONFIG !== 'undefined' && CONFIG.whatsappMessage
+            ? CONFIG.whatsappMessage
+            : 'Hello Keria Wellness, I would like to order ';
+        const whatsappNumber = typeof CONFIG !== 'undefined' && CONFIG.whatsapp
+            ? CONFIG.whatsapp
+            : '260976410975';
+
+        let message = `${messagePrefix}\n\n`;
+        cart.forEach((item, index) => {
+            message += `${index + 1}. ${item.name} (${item.price})\n`;
+        });
+
+        const total = cart.reduce((sum, item) => sum + getNumericPrice(item.price), 0);
+        message += `\nEstimated Total: ${formatCurrency(total)}`;
+
+        window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
     }
 
     function getCategories(items) {
@@ -193,8 +320,29 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFilter(activeCategory);
     });
 
+    cartFabBtn?.addEventListener('click', () => {
+        toggleCartModal(true);
+    });
+
+    cartCheckout?.addEventListener('click', () => {
+        checkoutWhatsApp();
+    });
+
+    cartClear?.addEventListener('click', () => {
+        cart = [];
+        updateCartUI();
+    });
+
     if (modal) {
         grid.addEventListener('click', (event) => {
+            const addCartButton = event.target.closest('[data-add-cart]');
+            if (addCartButton) {
+                event.stopPropagation();
+                addToCart(addCartButton.dataset.addCart);
+                toggleCartModal(true);
+                return;
+            }
+
             const card = event.target.closest('[data-product-id]');
             if (!card) {
                 return;
@@ -205,15 +353,44 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.addEventListener('click', (event) => {
             if (event.target.closest('[data-modal-close]')) {
                 closeModal();
+                return;
+            }
+
+            const modalAddCart = event.target.closest('[data-modal-add-cart]');
+            if (modalAddCart) {
+                addToCart(modalAddCart.dataset.modalAddCart);
+                closeModal();
+                toggleCartModal(true);
             }
         });
 
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
                 closeModal();
+                toggleCartModal(false);
             }
         });
     }
+
+    cartModal?.addEventListener('click', (event) => {
+        if (event.target.closest('[data-cart-close]')) {
+            toggleCartModal(false);
+            return;
+        }
+
+        const removeBtn = event.target.closest('[data-cart-remove]');
+        if (!removeBtn) {
+            return;
+        }
+
+        const removeIndex = Number(removeBtn.dataset.cartRemove);
+        if (!Number.isNaN(removeIndex)) {
+            cart.splice(removeIndex, 1);
+            updateCartUI();
+        }
+    });
+
+    updateCartUI();
 
     loadProducts();
 });
