@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Keria Wellness</title>
+    <title>Keria Wellness Blog</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -31,17 +31,23 @@
             <div class="organic-element leaf shape-6"></div>
         </div>
 
-        <h1>Our Story</h1>
-        <p>Rooted in nature. Crafted for your well-being.</p>
+        <h1>Wellness Journal</h1>
+        <p>Science-backed guidance, premium nutrition insights, and practical routines from Keria Wellness.</p>
     </header>
 
-    <main class="page-content">
-        <h2>The Keria Philosophy</h2>
-        <p>At Keria Wellness, we believe that true health starts from the earth. What began as a personal journey to find clean, unadulterated nutrition has grown into Zambia's premier wellness brand.</p>
-        <p>We source only the highest grade Sea Moss, raw almonds, and natural ginger, ensuring that every product that reaches your hands is packed with the vital nutrients your body craves. No fillers, no artificial preservatives, just pure, honest food.</p>
+    <main class="page-content blog-shell">
+        <article id="blog-detail" class="blog-detail hidden" aria-live="polite"></article>
 
-        <h2>Our Promise</h2>
-        <p>Whether you are kickstarting your fitness journey, optimizing your daily diet, or simply looking for a smarter snack, Keria Wellness is designed to support you. Eat Clean. Live Strong. Snack Smart.</p>
+        <section id="blog-listing">
+            <h2>Latest Articles</h2>
+            <p>Explore curated wellness guidance and product education, written for practical daily health.</p>
+            <div id="blog-posts" class="blog-grid"></div>
+            <p id="blog-empty" class="blog-empty hidden">No published posts yet. Please check back soon.</p>
+        </section>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/blog.js"></script>
 </body>
 </html>
