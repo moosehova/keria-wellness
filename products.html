@@ -39,8 +39,37 @@
             <input type="text" id="productSearch" placeholder="Search for Sea Moss, Almonds, or Ginger..." class="search-input">
         </div>
     </div>
+    <p id="productCount" class="product-count"></p>
     <div id="category-filters" class="filter-bar"></div>
     <div id="product-grid" class="product-grid"></div>
+
+    <div id="productModal" class="product-modal" aria-hidden="true">
+        <div class="product-modal__backdrop" data-modal-close></div>
+        <div class="product-modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <button type="button" class="product-modal__close" data-modal-close aria-label="Close product details">&times;</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <div id="cart-fab" class="cart-fab hidden" aria-hidden="true">
+        <button type="button" id="cart-fab-btn" class="cart-fab__button" aria-label="Open cart">
+            <span class="cart-fab__icon">Cart</span>
+            <span id="cart-count" class="cart-fab__count">0</span>
+        </button>
+    </div>
+
+    <div id="cartModal" class="cart-modal" aria-hidden="true">
+        <div class="cart-modal__backdrop" data-cart-close></div>
+        <div class="cart-modal__container" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+            <button type="button" class="product-modal__close" data-cart-close aria-label="Close cart">&times;</button>
+            <h2 id="cart-title" class="modal-title">Your Cart</h2>
+            <div id="cart-items" class="cart-items"></div>
+            <div class="cart-actions">
+                <button type="button" id="cart-checkout" class="btn-primary">Checkout via WhatsApp</button>
+                <button type="button" id="cart-clear" class="btn-secondary">Clear Cart</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
