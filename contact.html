@@ -20,15 +20,39 @@
         </div>
     </nav>
 
-    <header class="hero">
-        <h1>Speak With The Apothecary</h1>
-        <p>For custom wellness guidance, pickup details, and delivery confirmations.</p>
+    <header class="page-header">
+        <div class="floating-ecosystem" aria-hidden="true">
+            <div class="organic-element almond shape-1"></div>
+            <div class="organic-element leaf shape-2"></div>
+            <div class="organic-element chia shape-3"></div>
+            <div class="organic-element almond shape-4"></div>
+            <div class="organic-element chia shape-5"></div>
+            <div class="organic-element leaf shape-6"></div>
+        </div>
+
+        <h1>Get in Touch</h1>
+        <p>Have a question about our products or wholesale orders? We are here to help.</p>
     </header>
 
-    <section class="contact-card">
-        <h2 style="margin-top: 0; color: var(--keria-emerald); font-family: 'Playfair Display', serif;">WhatsApp Concierge</h2>
-        <p style="margin-bottom: 24px;">Tap below to message Keria Wellness directly.</p>
-        <a href="https://wa.me/260976410975" class="btn-primary" target="_blank" rel="noopener noreferrer">Message 097 641 0975</a>
-    </section>
+    <main class="page-content">
+        <div class="contact-wrapper">
+            <form action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
+                <input type="text" name="name" class="premium-input" placeholder="Your Full Name" required>
+
+                <input type="email" name="email" class="premium-input" placeholder="Your Email Address" required>
+
+                <select name="subject" class="premium-input" required>
+                    <option value="" disabled selected>What are you reaching out about?</option>
+                    <option value="Product Question">Product Question</option>
+                    <option value="Order Status">Order Status</option>
+                    <option value="Wholesale Inquiry">Wholesale Inquiry</option>
+                </select>
+
+                <textarea name="message" class="premium-input" placeholder="How can we help you today?" required></textarea>
+
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 16px;">Send Message</button>
+            </form>
+        </div>
+    </main>
 </body>
 </html>
